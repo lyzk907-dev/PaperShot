@@ -1,0 +1,27 @@
+name: Tests and repository privacy
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Check repository for runtime data and credentials
+        run: python scripts/check_repository.py
+      - name: Check Python syntax
+        run: python -m py_compile app.py core.py
+      - name: Run offline tests
+        run: python -m unittest discover -s tests -v
